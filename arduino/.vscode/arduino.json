@@ -1,0 +1,5 @@
+{
+    "board": "arduino:samd:mkrwifi1010",
+    "sketch": "led-functions.ino",
+    "port": "/dev/ttyS0"
+}
