@@ -22,7 +22,14 @@
 	let mounted = false;
 	let send = false;
 
+	let iframe: HTMLIFrameElement;
+
 	onMount(() => {
+		if (iframe) iframe.height = `${Math.min(600, (iframe.clientWidth / 16) * 9)}`;
+		addEventListener('resize', () => {
+			if (iframe) iframe.height = `${Math.min(600, (iframe.clientWidth / 16) * 9)}`;
+		});
+
 		equations = JSON.parse(localStorage.getItem('equations') || '[]');
 		equations.forEach((eq) => {
 			eq.h.onChange = onChangeFunc(eq.h, eq);
@@ -301,8 +308,8 @@
 		frameborder="0"
 		allowfullscreen={true}
 		scrolling="no"
-		height="378"
-		width="620"
+		class="w-full"
+		bind:this={iframe}
 	/>
 </div>
 
