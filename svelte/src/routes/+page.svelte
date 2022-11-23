@@ -173,29 +173,35 @@
 		>
 
 		<div class="pl-10">
-			<label for="h">h = </label><input
-				name="h"
-				class="font-mono focus:outline-none"
-				type="text"
-				bind:value={eq.h.value}
-				on:input={eq.h.onChange}
-			/>
+			<div class="flex whitespace-nowrap">
+				<label for="h">h = </label><input
+					name="h"
+					class="pl-4 font-mono focus:outline-none"
+					type="text"
+					bind:value={eq.h.value}
+					on:input={eq.h.onChange}
+				/>
+			</div>
 			<pre>{eq.h.error}</pre>
-			<label for="s">s = </label><input
-				name="s"
-				class="font-mono focus:outline-none"
-				type="text"
-				bind:value={eq.s.value}
-				on:input={eq.s.onChange}
-			/>
+			<div class="flex whitespace-nowrap">
+				<label for="s">s = </label><input
+					name="s"
+					class="pl-4 font-mono focus:outline-none"
+					type="text"
+					bind:value={eq.s.value}
+					on:input={eq.s.onChange}
+				/>
+			</div>
 			<pre>{eq.s.error}</pre>
-			<label for="v">v = </label><input
-				name="v"
-				class="font-mono focus:outline-none"
-				type="text"
-				bind:value={eq.v.value}
-				on:input={eq.v.onChange}
-			/>
+			<div class="flex whitespace-nowrap">
+				<label for="v">v = </label><input
+					name="v"
+					class="pl-4 font-mono focus:outline-none"
+					type="text"
+					bind:value={eq.v.value}
+					on:input={eq.v.onChange}
+				/>
+			</div>
 			<pre>{eq.v.error}</pre>
 			<button on:click={() => removeEquation(eq)}>Delete</button>
 		</div>
