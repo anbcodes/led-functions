@@ -9,13 +9,15 @@
 		error: string;
 	}
 
-	let equations: {
+	interface EquationSet {
 		h: Equation;
 		s: Equation;
 		v: Equation;
 		name: string;
 		open: boolean;
-	}[] = [];
+	}
+
+	let equations: EquationSet[] = [];
 
 	let mounted = false;
 	let send = false;
@@ -104,6 +106,12 @@
 		});
 	};
 
+	let currentEq: EquationSet | undefined;
+
+	$: if (currentEq) {
+		equations = equations;
+	}
+
 	const onChangeFunc = (el: Equation, parent: { h: Equation; s: Equation; v: Equation }) => () => {
 		const res = compile(el.value);
 		if (res.error) {
@@ -155,114 +163,141 @@
 	const removeEquation = (eq: { h: Equation; s: Equation; v: Equation }) => {
 		equations = equations.filter((v) => v !== eq);
 	};
+
+	let confirmDelete = false;
 </script>
 
-<div class="p-4 font-sans">
-	<h1 class="text-5xl">LEDS</h1>
+<header class="pb-10 p-5">
+	<h1 class="text-5xl ">LEDS</h1>
+</header>
 
-	{#each equations as eq}
-		<!-- svelte-ignore a11y-click-events-have-key-events -->
-		<details
-			class="pl-10 py-5 font-mono text-xl"
-			bind:open={eq.open}
-			on:click={() => {
-				console.log(equations);
-				if (!eq.open) {
-					sendToArduino(eq);
-					equations.filter((v) => v !== eq).forEach((v) => (v.open = false));
-					setTimeout(() => (eq.open = true), 0);
-					equations = equations;
-				}
-			}}
-		>
-			<summary
-				><input
-					type="text"
-					class="focus:outline-none text-2xl font-mono resize-x"
-					bind:value={eq.name}
-					on:input={(e) => {
-						// @ts-ignore
-						if (e.target) e.target.style.width = Math.max(eq.s.value.length + 5, 10) + 'ch';
-						eq.s.onChange();
-					}}
-				/></summary
+<div class="p-4 font-sans flex">
+	<div
+		class="md:flex flex-col flex-shrink-0 text-2xl w-full md:w-[300px] md:border-r border-gray-800 border-solid pr-4"
+		class:hidden={currentEq}
+		class:flex={!currentEq}
+	>
+		{#each equations as eq, i}
+			<button
+				class="border-gray-800 p-2 mx-2 border-solid border-b {eq === currentEq
+					? ''
+					: 'hover:bg-gray-200'} active:bg-gray-300"
+				class:bg-gray-300={eq === currentEq}
+				class:border-t={i === 0}
+				on:click={() => {
+					currentEq = eq;
+					sendToArduino(currentEq);
+				}}
 			>
-
-			<div class="pl-10">
-				<div class="flex whitespace-nowrap">
-					<label for="h">h = </label><input
-						name="h"
-						class="pl-4 font-mono focus:outline-none resize-x"
-						type="text"
-						autocomplete="off"
-						autocorrect="off"
-						autocapitalize="off"
-						spellcheck="false"
-						bind:value={eq.h.value}
-						on:input={(e) => {
-							// @ts-ignore
-							if (e.target) e.target.style.width = Math.max(eq.h.value.length + 5, 10) + 'ch';
-							eq.h.onChange();
-						}}
-					/>
-				</div>
-				<pre>{eq.h.error}</pre>
-				<div class="flex whitespace-nowrap">
-					<label for="s">s = </label><input
-						name="s"
-						class="pl-4 font-mono focus:outline-none resize-x"
-						type="text"
-						autocomplete="off"
-						autocorrect="off"
-						autocapitalize="off"
-						spellcheck="false"
-						bind:value={eq.s.value}
-						on:input={(e) => {
-							// @ts-ignore
-							if (e.target) e.target.style.width = Math.max(eq.s.value.length + 5, 10) + 'ch';
-							eq.s.onChange();
-						}}
-					/>
-				</div>
-				<pre>{eq.s.error}</pre>
-				<div class="flex whitespace-nowrap">
-					<label for="v">v = </label><input
-						name="v"
-						class="pl-4 font-mono focus:outline-none resize-x"
-						type="text"
-						autocomplete="off"
-						autocorrect="off"
-						autocapitalize="off"
-						spellcheck="false"
-						bind:value={eq.v.value}
-						on:input={(e) => {
-							// @ts-ignore
-							if (e.target) e.target.style.width = Math.max(eq.v.value.length + 5, 10) + 'ch';
-							eq.v.onChange();
-						}}
-					/>
-				</div>
-				<pre>{eq.v.error}</pre>
-				<button
-					class="mt-4 text-2xl font-sans rounded border-gray-800 border-solid border w-48 py-4 hover:bg-gray-200 active:bg-gray-300"
-					on:click={() => removeEquation(eq)}>Delete</button
-				>
-			</div>
-		</details>
-	{/each}
-
-	<div class="flex flex-col">
+				{eq.name}</button
+			>
+		{/each}
 		<button
-			class="text-2xl mt-14 rounded border-gray-800 border-solid border w-48 py-4 hover:bg-gray-200 active:bg-gray-300"
+			class="mt-14 rounded border-gray-800 border-solid border py-4 hover:bg-gray-200 active:bg-gray-300"
 			on:click={addEquation}
 		>
 			Add equation
 		</button>
-		<button
-			class="text-2xl mt-14 rounded border-gray-800 border-solid border w-48 py-4 hover:bg-gray-200 active:bg-gray-300"
-			on:click={() => location.reload()}
-		>
-			Reload
-		</button>
 	</div>
+
+	<div class="pl-5 flex-grow">
+		{#if currentEq}
+			<div class="flex justify-between">
+				<button
+					class="text-base md:hidden rounded border-gray-800 border-solid border py-1 px-3 mb-4 hover:bg-gray-200 active:bg-gray-300"
+					on:click={() => {
+						currentEq = undefined;
+					}}
+				>
+					Back
+				</button>
+				<div class="flex md:flex-row-reverse">
+					{#if confirmDelete}
+						<button
+							class="text-base rounded border-green-800 text-green-800 border-solid border py-1 px-3 mb-4 mx-2 hover:bg-gray-200 active:bg-gray-300"
+							on:click={() => {
+								confirmDelete = false;
+								if (currentEq) removeEquation(currentEq);
+								currentEq = undefined;
+							}}
+						>
+							Confirm Delete
+						</button>
+						<button
+							class="text-base rounded border-red-800 text-red-800 border-solid border py-1 px-3 mb-4 mx-2 hover:bg-gray-200 active:bg-gray-300"
+							on:click={() => (confirmDelete = false)}
+						>
+							Cancel Delete
+						</button>
+					{:else}
+						<button
+							class="text-base rounded border-gray-800 border-solid border py-1 px-3 mb-4 hover:bg-gray-200 active:bg-gray-300"
+							on:click={() => (confirmDelete = true)}
+						>
+							Delete
+						</button>
+					{/if}
+				</div>
+			</div>
+
+			<input
+				type="text"
+				class="focus:outline-none text-2xl w-full py-3"
+				bind:value={currentEq.name}
+			/>
+			<div class="pl-10">
+				<div class="flex whitespace-nowrap py-2">
+					<label for="h">h = </label><input
+						name="h"
+						class="pl-4 font-mono focus:outline-none w-full"
+						type="text"
+						autocomplete="off"
+						autocorrect="off"
+						autocapitalize="off"
+						spellcheck="false"
+						bind:value={currentEq.h.value}
+						on:input={currentEq.h.onChange}
+					/>
+				</div>
+				<pre>{currentEq.h.error}</pre>
+				<div class="flex whitespace-nowrap py-2">
+					<label for="s">s = </label><input
+						name="s"
+						class="pl-4 font-mono focus:outline-none w-full"
+						type="text"
+						autocomplete="off"
+						autocorrect="off"
+						autocapitalize="off"
+						spellcheck="false"
+						bind:value={currentEq.s.value}
+						on:input={currentEq.s.onChange}
+					/>
+				</div>
+				<pre>{currentEq.s.error}</pre>
+				<div class="flex whitespace-nowrap py-2">
+					<label for="v">v = </label><input
+						name="v"
+						class="pl-4 font-mono focus:outline-none w-full"
+						type="text"
+						autocomplete="off"
+						autocorrect="off"
+						autocapitalize="off"
+						spellcheck="false"
+						bind:value={currentEq.v.value}
+						on:input={currentEq.v.onChange}
+					/>
+				</div>
+				<pre>{currentEq.v.error}</pre>
+			</div>
+		{/if}
+	</div>
+</div>
+
+<div class="p-4 flex flex-col">
+	<button
+		class="text-1xl mt-20 rounded border-gray-800 border-solid border w-36 py-2 hover:bg-gray-200 active:bg-gray-300"
+		on:click={() => location.reload()}
+	>
+		Reload Page
+	</button>
 </div>
