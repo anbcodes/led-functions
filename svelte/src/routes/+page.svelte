@@ -203,7 +203,7 @@
 				/>
 			</div>
 			<pre>{eq.v.error}</pre>
-			<button on:click={() => removeEquation(eq)}>Delete</button>
+			<button class="mt-4" on:click={() => removeEquation(eq)}>Delete</button>
 		</div>
 	</details>
 {/each}
