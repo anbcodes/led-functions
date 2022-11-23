@@ -304,9 +304,16 @@
 	</noscript>
 	<script>
 		var a = function () {
-			mistPlay('live', {
+			window.mainvideo = mistPlay('live', {
 				target: document.getElementById('live_RDhIpDwdElfL'),
-				muted: true
+				muted: true,
+				urlappend: '?video=lowbps,lowres&audio=lowbps',
+				forcePriority: {
+					source: [['type', ['webrtc']]]
+				},
+				monitor: {
+					action: () => {}
+				}
 			});
 		};
 		if (!window.mistplayers) {
