@@ -21,6 +21,10 @@
 	let send = false;
 
 	onMount(() => {
+		if (window.location.protocol === 'https:') {
+			window.location.protocol = 'http:';
+		}
+
 		equations = JSON.parse(localStorage.getItem('equations') || '[]');
 		equations.forEach((eq) => {
 			eq.h.onChange = onChangeFunc(eq.h, eq);
