@@ -318,7 +318,7 @@
 	<p>Add sets of equations using the "Add Equation" button.</p>
 	<p>
 		Each set of equations contains an "h" equation, an "s" equation, and a "v" equation. Each
-		equation corresponds to each part of the HSV color of the LED.
+		equation corresponds to each part of the <a href="https://en.wikipedia.org/wiki/HSL_and_HSV">HSV color</a> of the LED.
 	</p>
 	<p>
 		Each equation is run every frame for every LED on the led strip, which allows you to create a
