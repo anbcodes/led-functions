@@ -72,7 +72,7 @@
 		const ishsv_arr = new Uint32Array([+ishsv]);
 		const sep_arr = new Uint32Array([cmds.END, 0]);
 
-		const socket = new WebSocket('ws://home.anb.codes:13655');
+		const socket = new WebSocket('wss://home.anb.codes:13655');
 		open = true;
 		socket.addEventListener('open', () => {
 			console.log('Sending...');
@@ -296,35 +296,63 @@
 	</div>
 </div>
 
-<div class="mistvideo" id="live_RDhIpDwdElfL">
-	<noscript>
-		<a href="http://home.anb.codes:48080/live.html" target="_blank" rel="noreferrer">
-			Click here to play this video
-		</a>
-	</noscript>
-	<script>
-		var a = function () {
-			window.mainvideo = mistPlay('live', {
-				target: document.getElementById('live_RDhIpDwdElfL'),
-				muted: true,
-				urlappend: '?video=lowbps,lowres&audio=lowbps',
-				forcePriority: {
-					source: [['type', ['webrtc']]]
-				},
-				monitor: {
-					action: () => {}
-				}
-			});
-		};
-		if (!window.mistplayers) {
-			var p = document.createElement('script');
-			p.src = 'http://home.anb.codes:48080/player.js';
-			document.head.appendChild(p);
-			p.onload = a;
-		} else {
-			a();
-		}
-	</script>
+<div>
+	<iframe
+		title="stream"
+		src="https://player.twitch.tv/?channel=anbcodes&parent={mounted
+			? window.location.hostname
+			: 'leds.anb.codes'}"
+		frameborder="0"
+		allowfullscreen={true}
+		scrolling="no"
+		height="378"
+		width="620"
+	/>
+</div>
+
+<div class="p-4 mt-20 prose">
+	<h1>Usage</h1>
+	<p>Add sets of equations using the "Add Equation" button.</p>
+	<p>
+		Each set of equations contains an "h" equation, an "s" equation, and a "v" equation. Each
+		equation corresponds to each part of the HSV color of the LED.
+	</p>
+	<p>
+		Each equation is run every frame for every LED on the led strip, which allows you to create a
+		LED pattern by using the equations.
+	</p>
+	<p>
+		The equations look like normal math equations, for example, setting <code>h = i + t</code> and
+		<code>s = 255</code>
+		and <code>v = 90</code> will create a rainbow pattern across the led strip.
+	</p>
+	<p>
+		All numbers are integers and the values sent to the LEDs are mod 256 of the result of the
+		equations. You can access two variables: <code>i</code> and <code>t</code>. <code>i</code> is
+		the index of the LED and <code>t</code> is the current frame, which increments by 1 every frame.
+	</p>
+	<p>
+		I attempted to have expressions evaluated according to the order of operations, but I don't
+		think I got it quite working, so I recommend using parenthesis if something doesn't seem right.
+	</p>
+	<p>
+		There are two functions that you can use. The first one is <code
+			>if([expr], [if not 0], [if 0])
+		</code>, which should be self-explanatory. The other one is <code>sin([value])</code>, which
+		computes the sin of a value, but a full cycle is 0-255 instead of 0-2pi.
+	</p>
+	<p>
+		The video is a live stream of my LED lights running whatever equations are written here. If too
+		many people use this, it could get crazy. When you type in an equation, it is automatically sent
+		to the LED strip.
+	</p>
+	<p>
+		This was a random project that I wanted to try. I'll probably set a password on it at some
+		point, but I thought I'd let the whole world try it out first. It probably has a lot of bugs and
+		I'm not planning to fix them all. I also wrote a <a href="https://anb.codes/2022/led-equations"
+			>blog post</a
+		> explaining how everything works.
+	</p>
 </div>
 
 <div class="p-4 flex flex-col">
