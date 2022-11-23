@@ -259,6 +259,7 @@
 						on:input={currentEq.h.onChange}
 					/>
 				</div>
+				<pre class="h-0 invisible">    {currentEq.h.value}</pre>
 				<pre>{currentEq.h.error}</pre>
 				<div class="flex whitespace-nowrap py-2">
 					<label for="s">s = </label><input
@@ -273,6 +274,7 @@
 						on:input={currentEq.s.onChange}
 					/>
 				</div>
+				<pre class="h-0 invisible">    {currentEq.s.value}</pre>
 				<pre>{currentEq.s.error}</pre>
 				<div class="flex whitespace-nowrap py-2">
 					<label for="v">v = </label><input
@@ -288,6 +290,7 @@
 					/>
 				</div>
 				<pre>{currentEq.v.error}</pre>
+				<pre class="h-0 invisible">    {currentEq.v.value}</pre>
 			</div>
 		{/if}
 	</div>
