@@ -178,6 +178,10 @@
 					name="h"
 					class="pl-4 font-mono focus:outline-none"
 					type="text"
+					autocomplete="off"
+					autocorrect="off"
+					autocapitalize="off"
+					spellcheck="false"
 					bind:value={eq.h.value}
 					on:input={eq.h.onChange}
 				/>
@@ -188,6 +192,10 @@
 					name="s"
 					class="pl-4 font-mono focus:outline-none"
 					type="text"
+					autocomplete="off"
+					autocorrect="off"
+					autocapitalize="off"
+					spellcheck="false"
 					bind:value={eq.s.value}
 					on:input={eq.s.onChange}
 				/>
@@ -198,6 +206,10 @@
 					name="v"
 					class="pl-4 font-mono focus:outline-none"
 					type="text"
+					autocomplete="off"
+					autocorrect="off"
+					autocapitalize="off"
+					spellcheck="false"
 					bind:value={eq.v.value}
 					on:input={eq.v.onChange}
 				/>
