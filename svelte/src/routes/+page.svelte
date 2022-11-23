@@ -222,4 +222,5 @@
 	{/each}
 
 	<button class="text-2xl" on:click={addEquation}> Add equation </button>
+	<button class="text-2xl mt-6" on:click={() => location.reload()}> Reload </button>
 </div>
