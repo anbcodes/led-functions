@@ -11,13 +11,13 @@
 		<meta name="viewport" content="width=device-width" />
 		<meta http-equiv="content-security-policy" content="">
 		<link href="./_app/immutable/assets/_layout-a35b0e55.css" rel="stylesheet">
-		<link rel="modulepreload" href="./_app/immutable/start-9dfe6578.js">
+		<link rel="modulepreload" href="./_app/immutable/start-b6b645c0.js">
 		<link rel="modulepreload" href="./_app/immutable/chunks/index-f6eecf18.js">
 		<link rel="modulepreload" href="./_app/immutable/chunks/singletons-0003959d.js">
 		<link rel="modulepreload" href="./_app/immutable/components/pages/_layout.svelte-69d7983f.js">
 		<link rel="modulepreload" href="./_app/immutable/modules/pages/_layout.ts-b8ee4d7c.js">
 		<link rel="modulepreload" href="./_app/immutable/chunks/_layout-1daba58d.js">
-		<link rel="modulepreload" href="./_app/immutable/components/pages/_page.svelte-66b60726.js">
+		<link rel="modulepreload" href="./_app/immutable/components/pages/_page.svelte-7f6a4d91.js">
 	</head>
 	<body>
 		<div style="display: contents">
@@ -34,9 +34,16 @@
 <div class="mistvideo" id="live_RDhIpDwdElfL"><noscript><a href="http://home.anb.codes:48080/live.html" target="_blank" rel="noreferrer">Click here to play this video
 		</a></noscript>
 	<script>var a = function () {
-			mistPlay('live', {
+			window.mainvideo = mistPlay('live', {
 				target: document.getElementById('live_RDhIpDwdElfL'),
-				muted: true
+				muted: true,
+				urlappend: '?video=lowbps,lowres&audio=lowbps',
+				forcePriority: {
+					source: [['type', ['webrtc']]]
+				},
+				monitor: {
+					action: () => {}
+				}
 			});
 		};
 		if (!window.mistplayers) {
@@ -53,8 +60,8 @@
 	</button></div>
 
 
-		<script type="module" data-sveltekit-hydrate="1jeavkd">
-			import { start } from "./_app/immutable/start-9dfe6578.js";
+		<script type="module" data-sveltekit-hydrate="10szj8w">
+			import { start } from "./_app/immutable/start-b6b645c0.js";
 
 			start({
 				env: {},
@@ -68,8 +75,8 @@
 					form: null
 				},
 				paths: {"base":"","assets":""},
-				target: document.querySelector('[data-sveltekit-hydrate="1jeavkd"]').parentNode,
-				version: "1669230851751"
+				target: document.querySelector('[data-sveltekit-hydrate="10szj8w"]').parentNode,
+				version: "1669232938178"
 			});
 		</script>
 	</div>
