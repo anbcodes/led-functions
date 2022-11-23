@@ -151,73 +151,75 @@
 	};
 </script>
 
-<h1 class="text-5xl">LEDS</h1>
+<div class="p-4">
+	<h1 class="text-5xl">LEDS</h1>
 
-{#each equations as eq}
-	<!-- svelte-ignore a11y-click-events-have-key-events -->
-	<details
-		class="pl-10 py-5 font-mono text-2xl"
-		bind:open={eq.open}
-		on:click={() => {
-			console.log(equations);
-			if (!eq.open) {
-				sendToArduino(eq);
-				equations.filter((v) => v !== eq).forEach((v) => (v.open = false));
-				setTimeout(() => (eq.open = true), 0);
-				equations = equations;
-			}
-		}}
-	>
-		<summary
-			><input type="text" class="focus:outline-none font-mono" bind:value={eq.name} /></summary
+	{#each equations as eq}
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
+		<details
+			class="pl-10 py-5 font-mono text-xl"
+			bind:open={eq.open}
+			on:click={() => {
+				console.log(equations);
+				if (!eq.open) {
+					sendToArduino(eq);
+					equations.filter((v) => v !== eq).forEach((v) => (v.open = false));
+					setTimeout(() => (eq.open = true), 0);
+					equations = equations;
+				}
+			}}
 		>
+			<summary
+				><input type="text" class="focus:outline-none font-mono" bind:value={eq.name} /></summary
+			>
 
-		<div class="pl-10">
-			<div class="flex whitespace-nowrap">
-				<label for="h">h = </label><input
-					name="h"
-					class="pl-4 font-mono focus:outline-none"
-					type="text"
-					autocomplete="off"
-					autocorrect="off"
-					autocapitalize="off"
-					spellcheck="false"
-					bind:value={eq.h.value}
-					on:input={eq.h.onChange}
-				/>
+			<div class="pl-10">
+				<div class="flex whitespace-nowrap">
+					<label for="h">h = </label><input
+						name="h"
+						class="pl-4 font-mono focus:outline-none"
+						type="text"
+						autocomplete="off"
+						autocorrect="off"
+						autocapitalize="off"
+						spellcheck="false"
+						bind:value={eq.h.value}
+						on:input={eq.h.onChange}
+					/>
+				</div>
+				<pre>{eq.h.error}</pre>
+				<div class="flex whitespace-nowrap">
+					<label for="s">s = </label><input
+						name="s"
+						class="pl-4 font-mono focus:outline-none"
+						type="text"
+						autocomplete="off"
+						autocorrect="off"
+						autocapitalize="off"
+						spellcheck="false"
+						bind:value={eq.s.value}
+						on:input={eq.s.onChange}
+					/>
+				</div>
+				<pre>{eq.s.error}</pre>
+				<div class="flex whitespace-nowrap">
+					<label for="v">v = </label><input
+						name="v"
+						class="pl-4 font-mono focus:outline-none"
+						type="text"
+						autocomplete="off"
+						autocorrect="off"
+						autocapitalize="off"
+						spellcheck="false"
+						bind:value={eq.v.value}
+						on:input={eq.v.onChange}
+					/>
+				</div>
+				<pre>{eq.v.error}</pre>
+				<button class="mt-4" on:click={() => removeEquation(eq)}>Delete</button>
 			</div>
-			<pre>{eq.h.error}</pre>
-			<div class="flex whitespace-nowrap">
-				<label for="s">s = </label><input
-					name="s"
-					class="pl-4 font-mono focus:outline-none"
-					type="text"
-					autocomplete="off"
-					autocorrect="off"
-					autocapitalize="off"
-					spellcheck="false"
-					bind:value={eq.s.value}
-					on:input={eq.s.onChange}
-				/>
-			</div>
-			<pre>{eq.s.error}</pre>
-			<div class="flex whitespace-nowrap">
-				<label for="v">v = </label><input
-					name="v"
-					class="pl-4 font-mono focus:outline-none"
-					type="text"
-					autocomplete="off"
-					autocorrect="off"
-					autocapitalize="off"
-					spellcheck="false"
-					bind:value={eq.v.value}
-					on:input={eq.v.onChange}
-				/>
-			</div>
-			<pre>{eq.v.error}</pre>
-			<button class="mt-4" on:click={() => removeEquation(eq)}>Delete</button>
-		</div>
-	</details>
-{/each}
+		</details>
+	{/each}
 
-<button class="text-2xl" on:click={addEquation}> Add equation </button>
+	<button class="text-2xl" on:click={addEquation}> Add equation </button>
+</div>
