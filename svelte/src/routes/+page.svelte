@@ -37,6 +37,12 @@
 		});
 		send = true;
 		mounted = true;
+
+		setTimeout(() => {
+			document.querySelectorAll('input').forEach((e) => {
+				e.style.width = Math.max(e.value.length + 5, 10) + 'ch';
+			});
+		});
 	});
 
 	$: if (mounted) localStorage.setItem('equations', JSON.stringify(equations));
@@ -151,7 +157,7 @@
 	};
 </script>
 
-<div class="p-4">
+<div class="p-4 font-sans">
 	<h1 class="text-5xl">LEDS</h1>
 
 	{#each equations as eq}
@@ -170,59 +176,93 @@
 			}}
 		>
 			<summary
-				><input type="text" class="focus:outline-none font-mono" bind:value={eq.name} /></summary
+				><input
+					type="text"
+					class="focus:outline-none text-2xl font-mono resize-x"
+					bind:value={eq.name}
+					on:input={(e) => {
+						// @ts-ignore
+						if (e.target) e.target.style.width = Math.max(eq.s.value.length + 5, 10) + 'ch';
+						eq.s.onChange();
+					}}
+				/></summary
 			>
 
 			<div class="pl-10">
 				<div class="flex whitespace-nowrap">
 					<label for="h">h = </label><input
 						name="h"
-						class="pl-4 font-mono focus:outline-none"
+						class="pl-4 font-mono focus:outline-none resize-x"
 						type="text"
 						autocomplete="off"
 						autocorrect="off"
 						autocapitalize="off"
 						spellcheck="false"
 						bind:value={eq.h.value}
-						on:input={eq.h.onChange}
+						on:input={(e) => {
+							// @ts-ignore
+							if (e.target) e.target.style.width = Math.max(eq.h.value.length + 5, 10) + 'ch';
+							eq.h.onChange();
+						}}
 					/>
 				</div>
 				<pre>{eq.h.error}</pre>
 				<div class="flex whitespace-nowrap">
 					<label for="s">s = </label><input
 						name="s"
-						class="pl-4 font-mono focus:outline-none"
+						class="pl-4 font-mono focus:outline-none resize-x"
 						type="text"
 						autocomplete="off"
 						autocorrect="off"
 						autocapitalize="off"
 						spellcheck="false"
 						bind:value={eq.s.value}
-						on:input={eq.s.onChange}
+						on:input={(e) => {
+							// @ts-ignore
+							if (e.target) e.target.style.width = Math.max(eq.s.value.length + 5, 10) + 'ch';
+							eq.s.onChange();
+						}}
 					/>
 				</div>
 				<pre>{eq.s.error}</pre>
 				<div class="flex whitespace-nowrap">
 					<label for="v">v = </label><input
 						name="v"
-						class="pl-4 font-mono focus:outline-none"
+						class="pl-4 font-mono focus:outline-none resize-x"
 						type="text"
 						autocomplete="off"
 						autocorrect="off"
 						autocapitalize="off"
 						spellcheck="false"
 						bind:value={eq.v.value}
-						on:input={eq.v.onChange}
+						on:input={(e) => {
+							// @ts-ignore
+							if (e.target) e.target.style.width = Math.max(eq.v.value.length + 5, 10) + 'ch';
+							eq.h.onChange();
+						}}
 					/>
 				</div>
 				<pre>{eq.v.error}</pre>
-				<button class="mt-4" on:click={() => removeEquation(eq)}>Delete</button>
+				<button
+					class="mt-4 text-2xl font-sans rounded border-gray-800 border-solid border w-48 py-4 hover:bg-gray-200 active:bg-gray-300"
+					on:click={() => removeEquation(eq)}>Delete</button
+				>
 			</div>
 		</details>
 	{/each}
 
 	<div class="flex flex-col">
-		<button class="text-2xl" on:click={addEquation}> Add equation </button>
-		<button class="text-2xl mt-6" on:click={() => location.reload()}> Reload </button>
+		<button
+			class="text-2xl mt-14 rounded border-gray-800 border-solid border w-48 py-4 hover:bg-gray-200 active:bg-gray-300"
+			on:click={addEquation}
+		>
+			Add equation
+		</button>
+		<button
+			class="text-2xl mt-14 rounded border-gray-800 border-solid border w-48 py-4 hover:bg-gray-200 active:bg-gray-300"
+			on:click={() => location.reload()}
+		>
+			Reload
+		</button>
 	</div>
 </div>
