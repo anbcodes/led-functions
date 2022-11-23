@@ -136,6 +136,11 @@
 		el.h.onChange = onChangeFunc(el.h, el);
 		el.s.onChange = onChangeFunc(el.s, el);
 		el.v.onChange = onChangeFunc(el.v, el);
+
+		el.h.onChange();
+		el.s.onChange();
+		el.v.onChange();
+
 		equations.forEach((v) => (v.open = false));
 		equations.push(el);
 		equations = equations;
