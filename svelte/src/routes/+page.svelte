@@ -305,7 +305,8 @@
 	<script>
 		var a = function () {
 			mistPlay('live', {
-				target: document.getElementById('live_RDhIpDwdElfL')
+				target: document.getElementById('live_RDhIpDwdElfL'),
+				muted: true
 			});
 		};
 		if (!window.mistplayers) {
