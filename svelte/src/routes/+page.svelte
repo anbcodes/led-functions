@@ -238,7 +238,7 @@
 						on:input={(e) => {
 							// @ts-ignore
 							if (e.target) e.target.style.width = Math.max(eq.v.value.length + 5, 10) + 'ch';
-							eq.h.onChange();
+							eq.v.onChange();
 						}}
 					/>
 				</div>
