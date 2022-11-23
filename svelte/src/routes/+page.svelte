@@ -296,6 +296,29 @@
 	</div>
 </div>
 
+<div class="mistvideo" id="live_RDhIpDwdElfL">
+	<noscript>
+		<a href="http://home.anb.codes:48080/live.html" target="_blank" rel="noreferrer">
+			Click here to play this video
+		</a>
+	</noscript>
+	<script>
+		var a = function () {
+			mistPlay('live', {
+				target: document.getElementById('live_RDhIpDwdElfL')
+			});
+		};
+		if (!window.mistplayers) {
+			var p = document.createElement('script');
+			p.src = 'http://home.anb.codes:48080/player.js';
+			document.head.appendChild(p);
+			p.onload = a;
+		} else {
+			a();
+		}
+	</script>
+</div>
+
 <div class="p-4 flex flex-col">
 	<button
 		class="text-1xl mt-20 rounded border-gray-800 border-solid border w-36 py-2 hover:bg-gray-200 active:bg-gray-300"
