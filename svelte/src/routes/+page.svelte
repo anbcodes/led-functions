@@ -168,7 +168,9 @@
 			}
 		}}
 	>
-		<summary><input type="text" bind:value={eq.name} /></summary>
+		<summary
+			><input type="text" class="focus:outline-none font-mono" bind:value={eq.name} /></summary
+		>
 
 		<div class="pl-10">
 			<label for="h">h = </label><input
