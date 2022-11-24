@@ -1,0 +1,8 @@
+name = "leds"
+main = "src/index.ts"
+compatibility_date = "2022-11-24"
+usage_model = "bundled"
+env = { }
+
+[triggers]
+crons = [ ]

@@ -287,9 +287,25 @@ void loop() {
         client.read(reinterpret_cast<uint8_t *>(&current_value),
                     sizeof current_value);
 
+        if (reading_index == PROGRAM_SIZE) {
+          client.stop();
+          break;
+        }
+
         if (reading_section == 0) {
-          hsv = current_value;
-          reading_section++;
+          if (reading_index == 0 && current_value != PASS_P1) {
+            client.stop();
+            break;
+          } else if (reading_index == 1 && current_value != PASS_P2) {
+            client.stop();
+            break;
+          } else if (reading_index == 2) {
+            hsv = current_value;
+            reading_index = 0;
+            reading_section += 1;
+          } else {
+            reading_index++;
+          }
         } else if (reading_section == 1) {
           if (reading_index != 0 && new_program_h[reading_index - 1] == END &&
               current_value == 0) {

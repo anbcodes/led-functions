@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { cmds, compile } from './compilier';
+	import { simulate } from './simulator';
 
 	interface Equation {
 		value: string;
@@ -19,16 +20,29 @@
 
 	let equations: EquationSet[] = [];
 
+	let password_p1 = '';
+	let password_p2 = '';
+
+	let showLEDPass = false;
+
+	let currentlySimulating: EquationSet = equations[0];
+
 	let mounted = false;
 	let send = false;
 
-	let iframe: HTMLIFrameElement;
+	$: if (mounted) localStorage.setItem('password_p1', password_p1);
+	$: if (mounted) localStorage.setItem('password_p2', password_p2);
+
+	let simulationCanvas: HTMLCanvasElement;
 
 	onMount(() => {
-		if (iframe) iframe.height = `${Math.min(600, (iframe.clientWidth / 16) * 9)}`;
+		if (simulationCanvas) simulationCanvas.width = simulationCanvas.clientWidth;
 		addEventListener('resize', () => {
-			if (iframe) iframe.height = `${Math.min(600, (iframe.clientWidth / 16) * 9)}`;
+			if (simulationCanvas) simulationCanvas.width = simulationCanvas.clientWidth;
 		});
+
+		password_p1 = localStorage.getItem('password_p1') ?? '0';
+		password_p2 = localStorage.getItem('password_p2') ?? '0';
 
 		equations = JSON.parse(localStorage.getItem('equations') || '[]');
 		equations.forEach((eq) => {
@@ -43,6 +57,22 @@
 		send = true;
 		mounted = true;
 
+		const ctx = simulationCanvas.getContext('2d');
+
+		if (!ctx) throw new Error('No canvas context!');
+
+		setInterval(() => {
+			if (currentlySimulating && simulationCanvas) {
+				simulate(
+					simulationCanvas,
+					ctx,
+					currentlySimulating.h.compiledValue,
+					currentlySimulating.s.compiledValue,
+					currentlySimulating.v.compiledValue
+				);
+			}
+		}, 1000 / 40);
+
 		setTimeout(() => {
 			document.querySelectorAll('input').forEach((e) => {
 				e.style.width = Math.max(e.value.length + 5, 10) + 'ch';
@@ -54,10 +84,12 @@
 
 	let open = false;
 	let waiting: NodeJS.Timer;
-	const sendToArduino = (eq: { h: Equation; s: Equation; v: Equation }, ishsv = true) => {
+	const sendToArduino = (eq: EquationSet, ishsv = true) => {
 		if (!send) return;
 
 		if (eq.h.error || eq.s.error || eq.v.error) return;
+
+		if (!password_p1 || !password_p2) return;
 
 		if (open) {
 			if (waiting) clearInterval(waiting);
@@ -69,6 +101,9 @@
 			}, 1);
 		}
 
+		currentlySimulating = eq;
+
+		const password_arr = new Uint32Array([+password_p1, +password_p2]);
 		const prog_h = new Uint32Array(eq.h.compiledValue);
 		const prog_s = new Uint32Array(eq.s.compiledValue);
 		const prog_v = new Uint32Array(eq.v.compiledValue);
@@ -79,6 +114,8 @@
 		open = true;
 		socket.addEventListener('open', () => {
 			console.log('Sending...');
+
+			socket.send(password_arr.buffer);
 
 			socket.send(ishsv_arr.buffer);
 			console.log(ishsv_arr);
@@ -115,7 +152,7 @@
 		equations = equations;
 	}
 
-	const onChangeFunc = (el: Equation, parent: { h: Equation; s: Equation; v: Equation }) => () => {
+	const onChangeFunc = (el: Equation, parent: EquationSet) => () => {
 		const res = compile(el.value);
 		if (res.error) {
 			el.error = res.error;
@@ -299,26 +336,18 @@
 	</div>
 </div>
 
-<div>
-	<iframe
-		title="stream"
-		src="https://player.twitch.tv/?channel=anbcodes&parent={mounted
-			? window.location.hostname
-			: 'leds.anb.codes'}"
-		frameborder="0"
-		allowfullscreen={true}
-		scrolling="no"
-		class="w-full"
-		bind:this={iframe}
-	/>
+<div class="mt-16">
+	<canvas id="simulation" bind:this={simulationCanvas} class="w-full" height="0" />
 </div>
 
-<div class="p-4 mt-20 prose">
+<div class="p-4 mt-16 prose">
 	<h1>Usage</h1>
 	<p>Add sets of equations using the "Add Equation" button.</p>
 	<p>
 		Each set of equations contains an "h" equation, an "s" equation, and a "v" equation. Each
-		equation corresponds to each part of the <a href="https://en.wikipedia.org/wiki/HSL_and_HSV">HSV color</a> of the LED.
+		equation corresponds to each part of the <a href="https://en.wikipedia.org/wiki/HSL_and_HSV"
+			>HSV color</a
+		> of the LED.
 	</p>
 	<p>
 		Each equation is run every frame for every LED on the led strip, which allows you to create a
@@ -356,6 +385,52 @@
 			>blog post</a
 		> explaining how everything works.
 	</p>
+</div>
+
+<div class="p-4 mt-16">
+	LEDs Password
+	<div class="m-3">
+		<label for="p1">Part 1</label>
+		{#if showLEDPass}
+			<input
+				class="ml-4 border border-gray-800 border-solid rounded px-1"
+				name="p1"
+				type="text"
+				bind:value={password_p1}
+			/>
+		{:else}
+			<input
+				class="ml-4 border border-gray-800 border-solid rounded px-1"
+				name="p1"
+				type="password"
+				bind:value={password_p1}
+			/>
+		{/if}
+	</div>
+	<div class="m-3">
+		<label for="p2">Part 2</label>
+		{#if showLEDPass}
+			<input
+				class="ml-4 border border-gray-800 border-solid rounded px-1"
+				name="p2"
+				type="text"
+				bind:value={password_p2}
+			/>
+		{:else}
+			<input
+				class="ml-4 border border-gray-800 border-solid rounded px-1"
+				name="p2"
+				type="password"
+				bind:value={password_p2}
+			/>
+		{/if}
+	</div>
+	<div>
+		<button
+			class="text-1xl mt-20 rounded border-gray-800 border-solid border w-36 py-2 hover:bg-gray-200 active:bg-gray-300"
+			on:click={() => (showLEDPass = !showLEDPass)}>{showLEDPass ? 'Hide' : 'Show'}</button
+		>
+	</div>
 </div>
 
 <div class="p-4 flex flex-col">
