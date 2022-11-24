@@ -11,14 +11,14 @@
 		<meta name="viewport" content="width=device-width" />
 		<title>LEDS</title>	
 		<meta http-equiv="content-security-policy" content="">
-		<link href="./_app/immutable/assets/_layout-c4d43ee8.css" rel="stylesheet">
-		<link rel="modulepreload" href="./_app/immutable/start-bd2c8547.js">
-		<link rel="modulepreload" href="./_app/immutable/chunks/index-83d73c50.js">
-		<link rel="modulepreload" href="./_app/immutable/chunks/singletons-1ddcabe1.js">
-		<link rel="modulepreload" href="./_app/immutable/components/pages/_layout.svelte-69b5623f.js">
+		<link href="./_app/immutable/assets/_layout-143662b4.css" rel="stylesheet">
+		<link rel="modulepreload" href="./_app/immutable/start-445095aa.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/index-a74517cd.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/singletons-6b60549b.js">
+		<link rel="modulepreload" href="./_app/immutable/components/pages/_layout.svelte-86bb2590.js">
 		<link rel="modulepreload" href="./_app/immutable/modules/pages/_layout.ts-b8ee4d7c.js">
 		<link rel="modulepreload" href="./_app/immutable/chunks/_layout-1daba58d.js">
-		<link rel="modulepreload" href="./_app/immutable/components/pages/_page.svelte-2f00b0e5.js">
+		<link rel="modulepreload" href="./_app/immutable/components/pages/_page.svelte-2a772718.js">
 	</head>
 	<body>
 		<div style="display: contents">
@@ -32,9 +32,9 @@
 
 	<div class="pl-5 flex-grow"></div></div>
 
-<div><iframe title="stream" src="https://player.twitch.tv/?channel=anbcodes&parent=leds.anb.codes" frameborder="0" allowfullscreen scrolling="no" class="w-full"></iframe></div>
+<div class="mt-16"><canvas id="simulation" class="w-full" height="0"></canvas></div>
 
-<div class="p-4 mt-20 prose"><h1>Usage</h1>
+<div class="p-4 mt-16 prose"><h1>Usage</h1>
 	<p>Add sets of equations using the &quot;Add Equation&quot; button.</p>
 	<p>Each set of equations contains an &quot;h&quot; equation, an &quot;s&quot; equation, and a &quot;v&quot; equation. Each
 		equation corresponds to each part of the <a href="https://en.wikipedia.org/wiki/HSL_and_HSV">HSV color</a> of the LED.
@@ -66,12 +66,19 @@
 		I&#39;m not planning to fix them all. I also wrote a <a href="https://anb.codes/2022/led-equations">blog post</a> explaining how everything works.
 	</p></div>
 
+<div class="p-4 mt-16">LEDs Password
+	<div class="m-3"><label for="p1">Part 1</label>
+		<input class="ml-4 border border-gray-800 border-solid rounded px-1" name="p1" type="password" value=""></div>
+	<div class="m-3"><label for="p2">Part 2</label>
+		<input class="ml-4 border border-gray-800 border-solid rounded px-1" name="p2" type="password" value=""></div>
+	<div><button class="text-1xl mt-20 rounded border-gray-800 border-solid border w-36 py-2 hover:bg-gray-200 active:bg-gray-300">Show</button></div></div>
+
 <div class="p-4 flex flex-col"><button class="text-1xl mt-20 rounded border-gray-800 border-solid border w-36 py-2 hover:bg-gray-200 active:bg-gray-300">Reload Page
 	</button></div>
 
 
-		<script type="module" data-sveltekit-hydrate="1u99u2i">
-			import { start } from "./_app/immutable/start-bd2c8547.js";
+		<script type="module" data-sveltekit-hydrate="ih1ait">
+			import { start } from "./_app/immutable/start-445095aa.js";
 
 			start({
 				env: {},
@@ -85,8 +92,8 @@
 					form: null
 				},
 				paths: {"base":"","assets":""},
-				target: document.querySelector('[data-sveltekit-hydrate="1u99u2i"]').parentNode,
-				version: "1669247093506"
+				target: document.querySelector('[data-sveltekit-hydrate="ih1ait"]').parentNode,
+				version: "1669307878375"
 			});
 		</script>
 	</div>
