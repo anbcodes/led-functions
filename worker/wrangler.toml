@@ -4,5 +4,9 @@ compatibility_date = "2022-11-24"
 usage_model = "bundled"
 env = { }
 
+kv_namespaces = [
+    { binding = "KV", id = "49c5d6ef1b6748868b8cd1c4bd0d548a" }
+]
+
 [triggers]
 crons = [ ]

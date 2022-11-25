@@ -19,11 +19,18 @@
 	}
 
 	let equations: EquationSet[] = [];
+	let myEquations: EquationSet[] = [];
 
 	let password_p1 = '';
 	let password_p2 = '';
 
 	let showLEDPass = false;
+
+	let username = '';
+	let key = '';
+
+	let viewUsername = '';
+	let viewUsernameError = '';
 
 	let currentlySimulating: EquationSet = equations[0];
 
@@ -35,17 +42,15 @@
 
 	let simulationCanvas: HTMLCanvasElement;
 
-	onMount(() => {
-		if (simulationCanvas) simulationCanvas.width = simulationCanvas.clientWidth;
-		addEventListener('resize', () => {
-			if (simulationCanvas) simulationCanvas.width = simulationCanvas.clientWidth;
-		});
+	let dataInitialized = false;
 
-		password_p1 = localStorage.getItem('password_p1') ?? '0';
-		password_p2 = localStorage.getItem('password_p2') ?? '0';
-
-		equations = JSON.parse(localStorage.getItem('equations') || '[]');
-		equations.forEach((eq) => {
+	const getData = async (forUser: string) => {
+		const res = await fetch(`https://leds.spry.workers.dev/data?username=${forUser}`);
+		const resJson = await res.json();
+		if (resJson.error) return resJson.error as string;
+		const json = JSON.parse(resJson.data);
+		if (!json.equations) json.equations = [];
+		json.equations.forEach((eq: EquationSet) => {
 			eq.h.onChange = onChangeFunc(eq.h, eq);
 			eq.s.onChange = onChangeFunc(eq.s, eq);
 			eq.v.onChange = onChangeFunc(eq.v, eq);
@@ -54,6 +59,63 @@
 			eq.s.onChange();
 			eq.v.onChange();
 		});
+		equations = json.equations;
+		if (forUser === username) {
+			myEquations = json.equations;
+			viewUsername = '';
+		}
+
+		dataInitialized = true;
+	};
+
+	const getUsername = async () => {
+		const res = await fetch(`https://leds.spry.workers.dev/get-username?key=${key}`, {
+			method: 'GET'
+		});
+
+		const json = await res.json();
+		if (json.username) {
+			username = json.username;
+			localStorage.setItem('username', username);
+		} else {
+			username = 'Not logged in';
+		}
+	};
+
+	onMount(() => {
+		if (simulationCanvas) simulationCanvas.width = simulationCanvas.clientWidth;
+		addEventListener('resize', () => {
+			if (simulationCanvas) simulationCanvas.width = simulationCanvas.clientWidth;
+		});
+
+		viewUsername = new URLSearchParams(location.search).get('view') ?? '';
+		window.addEventListener('popstate', () => {
+			viewUsername = new URLSearchParams(location.search).get('view') ?? '';
+		});
+
+		username = localStorage.getItem('username') ?? '';
+		key = localStorage.getItem('key') ?? '';
+
+		if (!username || !key) {
+			fetch('https://leds.spry.workers.dev/new-user', {
+				method: 'POST'
+			})
+				.then((v) => v.json())
+				.then((v) => {
+					username = v.username;
+					localStorage.setItem('username', username);
+					key = v.key;
+					localStorage.setItem('key', key);
+				})
+				.then(() => getData(username));
+		} else {
+			getUsername();
+			getData(username);
+		}
+
+		password_p1 = localStorage.getItem('password_p1') ?? '0';
+		password_p2 = localStorage.getItem('password_p2') ?? '0';
+
 		send = true;
 		mounted = true;
 
@@ -72,15 +134,49 @@
 				);
 			}
 		}, 1000 / 40);
-
-		setTimeout(() => {
-			document.querySelectorAll('input').forEach((e) => {
-				e.style.width = Math.max(e.value.length + 5, 10) + 'ch';
-			});
-		});
 	});
 
-	$: if (mounted) localStorage.setItem('equations', JSON.stringify(equations));
+	const setEquations = async (equations: EquationSet[], force = false) => {
+		if (!username) return;
+		if (!mounted) return;
+		if (viewUsername && !force) return;
+
+		await fetch(`https://leds.spry.workers.dev/data?key=${key}&username=${username}`, {
+			method: 'PUT',
+			body: JSON.stringify({
+				equations
+			}),
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+	};
+
+	let tryUsernameTimeout: NodeJS.Timeout;
+	const tryUsername = (user: string) => {
+		if (!mounted) return;
+		if (tryUsernameTimeout) clearTimeout(tryUsernameTimeout);
+		tryUsernameTimeout = setTimeout(async () => {
+			if (!user) {
+				viewUsernameError = '';
+				console.log('No user', user);
+				history.pushState(null, '', '/');
+				await getData(username);
+				return;
+			}
+
+			const error = await getData(user);
+			if (error) {
+				viewUsernameError = error;
+			} else {
+				viewUsernameError = '';
+			}
+
+			history.pushState(null, '', `?view=${user}`);
+		}, 500);
+	};
+
+	$: if (mounted) tryUsername(viewUsername);
 
 	let open = false;
 	let waiting: NodeJS.Timer;
@@ -89,7 +185,7 @@
 
 		if (eq.h.error || eq.s.error || eq.v.error) return;
 
-		if (!password_p1 || !password_p2) return;
+		if (!+password_p1 || !+password_p2) return;
 
 		if (open) {
 			if (waiting) clearInterval(waiting);
@@ -99,6 +195,7 @@
 					clearInterval(waiting);
 				}
 			}, 1);
+			return;
 		}
 
 		currentlySimulating = eq;
@@ -116,29 +213,13 @@
 			console.log('Sending...');
 
 			socket.send(password_arr.buffer);
-
 			socket.send(ishsv_arr.buffer);
-			console.log(ishsv_arr);
-
 			socket.send(prog_h.buffer);
-			console.log(prog_h);
-
 			socket.send(sep_arr.buffer);
-			console.log(sep_arr);
-
 			socket.send(prog_s.buffer);
-			console.log(prog_s);
-
 			socket.send(sep_arr.buffer);
-			console.log(sep_arr);
-
 			socket.send(prog_v.buffer);
-			console.log(prog_v);
-
 			socket.send(sep_arr.buffer);
-			console.log(sep_arr);
-
-			// socket.close();
 		});
 		socket.addEventListener('close', () => {
 			open = false;
@@ -152,7 +233,11 @@
 		equations = equations;
 	}
 
+	let updateServerTimeout: NodeJS.Timeout;
+
 	const onChangeFunc = (el: Equation, parent: EquationSet) => () => {
+		if (!dataInitialized) return;
+
 		const res = compile(el.value);
 		if (res.error) {
 			el.error = res.error;
@@ -161,6 +246,13 @@
 			el.compiledValue = res.compiled as number[];
 		}
 		sendToArduino(parent);
+
+		if (updateServerTimeout) clearTimeout(updateServerTimeout);
+
+		console.log('Attempt send', equations);
+
+		updateServerTimeout = setTimeout(() => setEquations(equations), 500);
+
 		equations = equations;
 	};
 
@@ -195,20 +287,153 @@
 		el.s.onChange();
 		el.v.onChange();
 
-		equations.forEach((v) => (v.open = false));
 		equations.push(el);
 		equations = equations;
+		setEquations(equations);
 	};
 
 	const removeEquation = (eq: { h: Equation; s: Equation; v: Equation }) => {
 		equations = equations.filter((v) => v !== eq);
 	};
 
+	const cloneEquation = (eq: EquationSet) => {
+		const newEquation = {
+			h: {
+				value: eq.h.value,
+				compiledValue: [] as number[],
+				onChange: () => {},
+				error: ''
+			},
+			s: {
+				value: eq.s.value,
+				compiledValue: [] as number[],
+				onChange: () => {},
+				error: ''
+			},
+			v: {
+				value: eq.v.value,
+				compiledValue: [] as number[],
+				onChange: () => {},
+				error: ''
+			},
+			name: eq.name,
+			open: true
+		};
+		newEquation.h.onChange = onChangeFunc(newEquation.h, newEquation);
+		newEquation.s.onChange = onChangeFunc(newEquation.s, newEquation);
+		newEquation.v.onChange = onChangeFunc(newEquation.v, newEquation);
+
+		newEquation.h.onChange();
+		newEquation.s.onChange();
+		newEquation.v.onChange();
+		equations = myEquations;
+		viewUsername = '';
+		currentEq = undefined;
+		equations.push(newEquation);
+		setEquations(equations);
+		equations = equations;
+	};
+
 	let confirmDelete = false;
+
+	let showKey = false;
+
+	let refreshKeyConfirm = false;
+
+	let newKey = '';
+	let keyError = '';
+
+	let newUsername = '';
+	let usernameError = '';
+
+	const setKey = async () => {
+		if (newKey.length !== 25) {
+			keyError = 'Key must be 25 characters long';
+			return;
+		}
+
+		const res = await fetch(`https://leds.spry.workers.dev/get-username?key=${key}`, {
+			method: 'GET'
+		});
+
+		const json = await res.json();
+		if (json.username) {
+			key = newKey;
+			username = json.username;
+			getData(username);
+			keyError = '';
+			newKey = '';
+			localStorage.setItem('key', key);
+			localStorage.setItem('username', username);
+		} else {
+			keyError = json.error;
+		}
+	};
+
+	const refreshKey = async () => {
+		refreshKeyConfirm = false;
+		const res = await fetch(`https://leds.spry.workers.dev/new-pass?key=${key}`, {
+			method: 'POST'
+		});
+		const json = await res.json();
+		if (json.key) {
+			key = json.key;
+			localStorage.setItem('key', key);
+		}
+	};
+
+	const setUsername = async () => {
+		if (newUsername === '') return;
+
+		const res = await fetch(
+			`https://leds.spry.workers.dev/set-username?key=${key}&username=${newUsername}`,
+			{ method: 'POST' }
+		);
+		const json = await res.json();
+		if (json.success) {
+			username = newUsername;
+			usernameError = '';
+			newUsername = '';
+
+			localStorage.setItem('username', username);
+		} else {
+			usernameError = json.error;
+		}
+	};
+
+	const newAccount = () => {
+		localStorage.removeItem('username');
+		localStorage.removeItem('key');
+		location.reload();
+	};
 </script>
 
-<header class="pb-10 p-5">
+<header class="pb-10 p-5 flex justify-between flex-col md:flex-row">
 	<h1 class="text-5xl ">LEDS</h1>
+	<div class="flex flex-col">
+		<div class="flex">
+			<div class="mr-4 flex items-center">{username}</div>
+			<button
+				class="rounded border-gray-800 border-solid border w-36 py-2 hover:bg-gray-200 active:bg-gray-300"
+				on:click={() => (showKey = !showKey)}>{showKey ? 'Hide' : 'Show'} key</button
+			>
+		</div>
+
+		{#if showKey}
+			<div class="mt-5">Key: {key}</div>
+		{:else}
+			<div class="mt-5">
+				<label for="view-user">View user</label>
+				<input
+					name="view-user"
+					class="ml-4 border border-gray-800 border-solid rounded px-1"
+					placeholder="username"
+					bind:value={viewUsername}
+				/>
+			</div>
+			<div class="text-sm text-red-800">{viewUsernameError}</div>
+		{/if}
+	</div>
 </header>
 
 <div class="p-4 font-sans flex">
@@ -233,8 +458,9 @@
 			>
 		{/each}
 		<button
-			class="mt-14 rounded border-gray-800 border-solid border py-4 hover:bg-gray-200 active:bg-gray-300"
+			class="mt-14 rounded border-gray-800 border-solid border py-4 hover:bg-gray-200 active:bg-gray-300 disabled:hover:bg-white disabled:border-gray-500 disabled:text-gray-500"
 			on:click={addEquation}
+			disabled={!!viewUsername}
 		>
 			Add equation
 		</button>
@@ -252,9 +478,15 @@
 					Back
 				</button>
 				<div class="flex md:flex-row-reverse">
+					<button
+						class="text-base rounded border-gray-800 border-solid border py-1 px-3 mb-4 hover:bg-gray-200 active:bg-gray-300 mx-2"
+						on:click={() => (currentEq ? cloneEquation(currentEq) : undefined)}
+					>
+						Clone
+					</button>
 					{#if confirmDelete}
 						<button
-							class="text-base rounded border-green-800 text-green-800 border-solid border py-1 px-3 mb-4 mx-2 hover:bg-gray-200 active:bg-gray-300"
+							class="text-base rounded border-solid border py-1 px-3 mb-4 mx-2 hover:bg-gray-200 active:bg-gray-300"
 							on:click={() => {
 								confirmDelete = false;
 								if (currentEq) removeEquation(currentEq);
@@ -264,14 +496,15 @@
 							Confirm Delete
 						</button>
 						<button
-							class="text-base rounded border-red-800 text-red-800 border-solid border py-1 px-3 mb-4 mx-2 hover:bg-gray-200 active:bg-gray-300"
+							class="text-base rounded border-solid border py-1 px-3 mb-4 mx-2 hover:bg-gray-200 active:bg-gray-300"
 							on:click={() => (confirmDelete = false)}
 						>
 							Cancel Delete
 						</button>
 					{:else}
 						<button
-							class="text-base rounded border-gray-800 border-solid border py-1 px-3 mb-4 hover:bg-gray-200 active:bg-gray-300"
+							class="text-base rounded border-gray-800 border-solid border py-1 px-3 mb-4 hover:bg-gray-200 active:bg-gray-300 disabled:hover:bg-white disabled:border-gray-500 disabled:text-gray-500"
+							disabled={!!viewUsername}
 							on:click={() => (confirmDelete = true)}
 						>
 							Delete
@@ -283,7 +516,9 @@
 			<input
 				type="text"
 				class="focus:outline-none text-2xl w-full py-3"
+				disabled={!!viewUsername}
 				bind:value={currentEq.name}
+				on:input={currentEq.h.onChange}
 			/>
 			<div class="pl-10">
 				<div class="flex whitespace-nowrap py-2">
@@ -295,6 +530,7 @@
 						autocorrect="off"
 						autocapitalize="off"
 						spellcheck="false"
+						disabled={!!viewUsername}
 						bind:value={currentEq.h.value}
 						on:input={currentEq.h.onChange}
 					/>
@@ -310,6 +546,7 @@
 						autocorrect="off"
 						autocapitalize="off"
 						spellcheck="false"
+						disabled={!!viewUsername}
 						bind:value={currentEq.s.value}
 						on:input={currentEq.s.onChange}
 					/>
@@ -325,6 +562,7 @@
 						autocorrect="off"
 						autocapitalize="off"
 						spellcheck="false"
+						disabled={!!viewUsername}
 						bind:value={currentEq.v.value}
 						on:input={currentEq.v.onChange}
 					/>
@@ -431,6 +669,86 @@
 			on:click={() => (showLEDPass = !showLEDPass)}>{showLEDPass ? 'Hide' : 'Show'}</button
 		>
 	</div>
+</div>
+
+<div class="p-4 flex flex-col mt-10">
+	<div>
+		{#if refreshKeyConfirm}
+			<div class="flex">
+				<button
+					class="rounded border-gray-800 border-solid border w-36 py-2 mr-4 hover:bg-gray-200 active:bg-gray-300"
+					on:click={() => {
+						refreshKeyConfirm = false;
+					}}
+				>
+					Cancel
+				</button>
+				<button
+					class="rounded border-gray-800 border-solid border w-36 py-2 hover:bg-gray-200 active:bg-gray-300"
+					on:click={() => refreshKey()}
+				>
+					Confirm
+				</button>
+			</div>
+			<div>Note: Refreshing your key logs you out of all devices</div>
+		{:else}
+			<button
+				class="rounded border-gray-800 border-solid border w-36 py-2 hover:bg-gray-200 active:bg-gray-300"
+				on:click={() => (refreshKeyConfirm = true)}
+			>
+				Refresh Key
+			</button>
+		{/if}
+	</div>
+</div>
+
+<div class="p-4 flex flex-col mt-10">
+	<div class="flex">
+		<label for="key">Key</label>
+		<input
+			class="ml-4 border border-gray-800 border-solid rounded px-1"
+			name="key"
+			bind:value={newKey}
+		/>
+	</div>
+	<div class="text-sm text-red-800">{keyError}</div>
+	<button
+		class="rounded border-gray-800 border-solid border w-36 py-2 my-3 hover:bg-gray-200 active:bg-gray-300"
+		on:click={() => setKey()}
+	>
+		Set Key
+	</button>
+	<div>
+		Note: Setting the key allows you to change accounts (remember to save your old key somewhere!)
+	</div>
+</div>
+
+<div class="p-4 flex flex-col mt-10">
+	<div class="flex">
+		<label for="username">Username</label>
+		<input
+			class="ml-4 border border-gray-800 border-solid rounded px-1"
+			name="username"
+			bind:value={newUsername}
+		/>
+	</div>
+	<div class="text-sm text-red-800">{usernameError}</div>
+	<button
+		class="rounded border-gray-800 border-solid border w-36 py-2 my-3 hover:bg-gray-200 active:bg-gray-300"
+		on:click={() => setUsername()}
+	>
+		Set Username
+	</button>
+</div>
+
+<div class="p-4 flex flex-col mt-10">
+	<button
+		class="rounded border-gray-800 border-solid border w-36 py-2 my-3 hover:bg-gray-200 active:bg-gray-300"
+		on:click={() => newAccount()}
+	>
+		New Account
+	</button>
+	<div>Note: Backup your current key first!</div>
 </div>
 
 <div class="p-4 flex flex-col">

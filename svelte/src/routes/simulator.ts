@@ -1,5 +1,6 @@
 import { browser } from "$app/environment";
 import { cmds } from "./compilier";
+import { hsv2rgb } from "./hsvtorgb";
 
 const STACK_SIZE = 100;
 
@@ -146,7 +147,9 @@ export const simulate = (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2
   canvas.height = ledWidth;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   for (let i = 0; i < leds.length; i++) {
-    ctx.fillStyle = `hsl(${leds[i].h / 256 * 360}, ${leds[i].s / 256 * 100}%, ${leds[i].v / 256 * 100}%)`
+    const rgb = hsv2rgb(leds[i].h, leds[i].s, leds[i].v);
+
+    ctx.fillStyle = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`
     ctx.fillRect(i * ledWidth, 0, ledWidth, ledWidth);
     // console.log("Filling", `hsl(${leds[i].h / 255 * 360}, ${leds[i].s / 255 * 100}%, ${leds[i].v / 255 * 100}%)`);
     // console.log("Filling", leds[i]);
