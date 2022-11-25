@@ -11,23 +11,29 @@
 		<meta name="viewport" content="width=device-width" />
 		<title>LEDS</title>	
 		<meta http-equiv="content-security-policy" content="">
-		<link href="./_app/immutable/assets/_layout-143662b4.css" rel="stylesheet">
-		<link rel="modulepreload" href="./_app/immutable/start-445095aa.js">
-		<link rel="modulepreload" href="./_app/immutable/chunks/index-a74517cd.js">
-		<link rel="modulepreload" href="./_app/immutable/chunks/singletons-6b60549b.js">
-		<link rel="modulepreload" href="./_app/immutable/components/pages/_layout.svelte-86bb2590.js">
+		<link href="./_app/immutable/assets/_layout-f054b4a0.css" rel="stylesheet">
+		<link rel="modulepreload" href="./_app/immutable/start-7f5d0bf0.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/index-18a3bc3c.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/singletons-8de443e2.js">
+		<link rel="modulepreload" href="./_app/immutable/components/pages/_layout.svelte-6499fb10.js">
 		<link rel="modulepreload" href="./_app/immutable/modules/pages/_layout.ts-b8ee4d7c.js">
 		<link rel="modulepreload" href="./_app/immutable/chunks/_layout-1daba58d.js">
-		<link rel="modulepreload" href="./_app/immutable/components/pages/_page.svelte-2a772718.js">
+		<link rel="modulepreload" href="./_app/immutable/components/pages/_page.svelte-c308a96b.js">
 	</head>
 	<body>
 		<div style="display: contents">
 
 
-<header class="pb-10 p-5"><h1 class="text-5xl ">LEDS</h1></header>
+<header class="pb-10 p-5 flex justify-between flex-col md:flex-row"><h1 class="text-5xl ">LEDS</h1>
+	<div class="flex flex-col"><div class="flex"><div class="mr-4 flex items-center"></div>
+			<button class="rounded border-gray-800 border-solid border w-36 py-2 hover:bg-gray-200 active:bg-gray-300">Show key</button></div>
+
+		<div class="mt-5"><label for="view-user">View user</label>
+				<input name="view-user" class="ml-4 border border-gray-800 border-solid rounded px-1" placeholder="username" value=""></div>
+			<div class="text-sm text-red-800"></div></div></header>
 
 <div class="p-4 font-sans flex"><div class="md:flex flex-col flex-shrink-0 text-2xl w-full md:w-[300px] md:border-r border-gray-800 border-solid pr-4  flex">
-		<button class="mt-14 rounded border-gray-800 border-solid border py-4 hover:bg-gray-200 active:bg-gray-300">Add equation
+		<button class="mt-14 rounded border-gray-800 border-solid border py-4 hover:bg-gray-200 active:bg-gray-300 disabled:hover:bg-white disabled:border-gray-500 disabled:text-gray-500" >Add equation
 		</button></div>
 
 	<div class="pl-5 flex-grow"></div></div>
@@ -73,12 +79,33 @@
 		<input class="ml-4 border border-gray-800 border-solid rounded px-1" name="p2" type="password" value=""></div>
 	<div><button class="text-1xl mt-20 rounded border-gray-800 border-solid border w-36 py-2 hover:bg-gray-200 active:bg-gray-300">Show</button></div></div>
 
+<div class="p-4 flex flex-col mt-10"><div><button class="rounded border-gray-800 border-solid border w-36 py-2 hover:bg-gray-200 active:bg-gray-300">Refresh Key
+			</button></div></div>
+
+<div class="p-4 flex flex-col mt-10"><div class="flex"><label for="key">Key</label>
+		<input class="ml-4 border border-gray-800 border-solid rounded px-1" name="key" value=""></div>
+	<div class="text-sm text-red-800"></div>
+	<button class="rounded border-gray-800 border-solid border w-36 py-2 my-3 hover:bg-gray-200 active:bg-gray-300">Set Key
+	</button>
+	<div>Note: Setting the key allows you to change accounts (remember to save your old key somewhere!)
+	</div></div>
+
+<div class="p-4 flex flex-col mt-10"><div class="flex"><label for="username">Username</label>
+		<input class="ml-4 border border-gray-800 border-solid rounded px-1" name="username" value=""></div>
+	<div class="text-sm text-red-800"></div>
+	<button class="rounded border-gray-800 border-solid border w-36 py-2 my-3 hover:bg-gray-200 active:bg-gray-300">Set Username
+	</button></div>
+
+<div class="p-4 flex flex-col mt-10"><button class="rounded border-gray-800 border-solid border w-36 py-2 my-3 hover:bg-gray-200 active:bg-gray-300">New Account
+	</button>
+	<div>Note: Backup your current key first!</div></div>
+
 <div class="p-4 flex flex-col"><button class="text-1xl mt-20 rounded border-gray-800 border-solid border w-36 py-2 hover:bg-gray-200 active:bg-gray-300">Reload Page
 	</button></div>
 
 
-		<script type="module" data-sveltekit-hydrate="ih1ait">
-			import { start } from "./_app/immutable/start-445095aa.js";
+		<script type="module" data-sveltekit-hydrate="e94ma5">
+			import { start } from "./_app/immutable/start-7f5d0bf0.js";
 
 			start({
 				env: {},
@@ -92,8 +119,8 @@
 					form: null
 				},
 				paths: {"base":"","assets":""},
-				target: document.querySelector('[data-sveltekit-hydrate="ih1ait"]').parentNode,
-				version: "1669307878375"
+				target: document.querySelector('[data-sveltekit-hydrate="e94ma5"]').parentNode,
+				version: "1669400751472"
 			});
 		</script>
 	</div>
