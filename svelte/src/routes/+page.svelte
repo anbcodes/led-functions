@@ -17,9 +17,16 @@
 	import ViewUser from './ViewUser.svelte';
 
 	let key = '';
+	let mounted = false;
 
 	let patterns: Pattern[] = [];
 	let currentPatternId = '';
+	$: {
+		const pattern = patterns.find((v) => v.id === currentPatternId);
+		if (pattern) {
+			sendPatternToArduino(pattern);
+		}
+	}
 
 	let viewPatterns: Pattern[] = [];
 
@@ -27,6 +34,7 @@
 	$: onlyViewing = viewPatterns.length !== 0;
 
 	let LEDPassword: [string, string] = ['', ''];
+	$: if (mounted) localStorage.setItem('ledPass', JSON.stringify(LEDPassword));
 
 	const savePatterns = async () => {
 		console.log('Saving patterns...');
@@ -139,6 +147,7 @@
 
 	onMount(async () => {
 		key = localStorage.getItem('key') ?? '';
+		LEDPassword = JSON.parse(localStorage.getItem('ledPass') ?? `["",""]`);
 		if (!key) await makeNewAccount();
 
 		const res = await fetch(`https://leds.spry.workers.dev/data?key=${key}`);
@@ -148,6 +157,8 @@
 			const data = JSON.parse(json.data);
 			patterns = data?.patterns ?? [];
 		}
+
+		mounted = true;
 	});
 </script>
 

@@ -150,7 +150,7 @@ export const simulate = (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2
   canvas.height = ledHeight;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   for (let i = 0; i < leds.length; i++) {
-    const rgb = hsv2rgb(leds[i].h / 255, leds[i].s / 255, leds[i].v / 255);
+    const rgb = hsv2rgb(leds[i].h / 255, leds[i].s / 255, leds[i].v / 128);
 
     ctx.fillStyle = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`
     ctx.fillRect(i * ledWidth, 0, ledWidth, ledHeight);
