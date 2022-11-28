@@ -121,8 +121,15 @@
 		});
 	};
 
-	const onKeySet = ({ detail: newKey }: CustomEvent<string>) => {
+	const onKeySet = async ({ detail: newKey }: CustomEvent<string>) => {
 		key = newKey;
+		const res = await fetch(`https://leds.spry.workers.dev/data?key=${key}`);
+		const json = await res.json();
+
+		if (json.data) {
+			const data = JSON.parse(json.data);
+			patterns = data?.patterns ?? [];
+		}
 		localStorage.setItem('key', newKey);
 	};
 
