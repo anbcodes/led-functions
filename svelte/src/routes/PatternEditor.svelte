@@ -13,7 +13,7 @@
 	$: if (currentPattern) checkForErrors();
 
 	let emit = createEventDispatcher<{
-		back: undefined;
+		close: undefined;
 		edit: Pattern;
 		newPattern: Pattern;
 		remove: Pattern;
@@ -59,7 +59,7 @@
 		<div class="flex justify-between">
 			<button
 				class="text-base md:hidden rounded border-gray-800 border-solid border py-1 px-3 mb-4 hover:bg-gray-200 active:bg-gray-300"
-				on:click={() => emit('back')}
+				on:click={() => emit('close')}
 			>
 				Back
 			</button>
