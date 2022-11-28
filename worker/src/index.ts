@@ -99,7 +99,13 @@ export default {
       return json({ key, username })
     } else if (pathname.startsWith("/data")) {
       if (request.method === 'GET') {
-        const user = searchParams.get('username');
+        let user = searchParams.get('username');
+        const key = searchParams.get('key');
+
+        if (key) {
+          user = await env.KV.get(`key-${await sha256(key)}`);
+        }
+
         const data = await env.KV.get(`user-${user ?? ''}`)
         if (!data) return json({ error: "User not found" }, {status: 404});
         
@@ -172,6 +178,12 @@ export default {
       if (!username) return json({ error: "Invalid key" }, {status: 400});
 
       return json({ username });
+    } else if (pathname.startsWith('/users') && request.method === 'GET') {
+      const users = await env.KV.list({
+        prefix: 'user-'
+      });
+
+      return json(users.keys.map(v => v.name.slice(5)));
     }
 
     return json({error: "Not found" }, {status: 404});

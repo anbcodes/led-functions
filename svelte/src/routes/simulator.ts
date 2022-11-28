@@ -143,14 +143,17 @@ export const simulate = (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2
 
   leds.reverse();
 
+  canvas.width = canvas.clientWidth;
+
   const ledWidth = canvas.width / leds.length;
-  canvas.height = ledWidth;
+  const ledHeight = Math.max(6, ledWidth);
+  canvas.height = ledHeight;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   for (let i = 0; i < leds.length; i++) {
-    const rgb = hsv2rgb(leds[i].h, leds[i].s, leds[i].v);
+    const rgb = hsv2rgb(leds[i].h / 255, leds[i].s / 255, leds[i].v / 255);
 
     ctx.fillStyle = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`
-    ctx.fillRect(i * ledWidth, 0, ledWidth, ledWidth);
+    ctx.fillRect(i * ledWidth, 0, ledWidth, ledHeight);
     // console.log("Filling", `hsl(${leds[i].h / 255 * 360}, ${leds[i].s / 255 * 100}%, ${leds[i].v / 255 * 100}%)`);
     // console.log("Filling", leds[i]);
   }
