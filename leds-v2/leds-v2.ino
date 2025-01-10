@@ -83,6 +83,8 @@ void connect() {
 }
 
 WiFiServer server(11234);
+WiFiServer httpServer(80);
+WiFiServer websockets(11235);
 
 void setup() {
   Serial.begin(9600);
@@ -119,20 +121,20 @@ enum Commands {
 // Suffix programs ====================
 
 // clang-format off
-// uint32_t program_h[PROGRAM_SIZE] = {
-//                 VAR_T,  // [5]
-//                 VAL, 5, // [5, t]
-//             DIV,        // [5/t]
-//             VAR_I,      // [5/t, i]
-//         ADD,            // [5/t+i]
-//         VAL, 5,         // [5/t+i, 5]
-//     MUL,                 // [(5/t + i) * 5]
-//     END,
-// };
 uint32_t program_h[PROGRAM_SIZE] = {
-    VAL, 0,
+                VAR_T,  // [5]
+                // VAL, 5, // [5, t]
+            // DIV,        // [5/t]
+            VAR_I,      // [5/t, i]
+        ADD,            // [5/t+i]
+        VAL, 5,         // [5/t+i, 5]
+    MUL,                 // [(5/t + i) * 5]
     END,
 };
+// uint32_t program_h[PROGRAM_SIZE] = {
+//     VAL, 0,
+//     END,
+// };
 
 // (t/speed + i) * seg_size
 
@@ -144,7 +146,7 @@ uint32_t program_h[PROGRAM_SIZE] = {
 
 uint32_t program_s[PROGRAM_SIZE] = {
     VAL,
-    0,
+    255,
     END,
 };
 
@@ -152,7 +154,7 @@ uint32_t program_s[PROGRAM_SIZE] = {
 
 uint32_t program_v[PROGRAM_SIZE] = {
     VAL,
-    0,
+    128,
     END,
 };
 // clang-format on
@@ -271,7 +273,19 @@ uint32_t run_program(uint32_t prog[], int led_index) {
 int reading_index = 0;
 int reading_section = 0;
 
-WiFiClient client;
+WiFiClient socket_client;
+
+void handle_raw_sockets() {
+
+}
+
+void handle_http() {
+
+}
+
+void handle_websockets() {
+
+}
 
 bool hsv = true;
 

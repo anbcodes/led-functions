@@ -1,0 +1,71 @@
+
+uint32_t compute(uint32_t prog[], int index, int led_index, int &next_index) {
+  if (index >= PROGRAM_SIZE) {
+    return 0;
+  }
+  int next_i = 0;
+  uint32_t maybe;
+  uint32_t a;
+  uint32_t b;
+  switch (int(prog[index])) {
+    case SIN:
+      return sin_lookup[compute(prog, index + 1, led_index, next_index) % 255];
+    case ADD:
+      return compute(prog, index + 1, led_index, next_i) +
+             compute(prog, next_i, led_index, next_index);
+    case SUB:
+      return compute(prog, index + 1, led_index, next_i) -
+             compute(prog, next_i, led_index, next_index);
+    case MUL:
+      return compute(prog, index + 1, led_index, next_i) *
+             compute(prog, next_i, led_index, next_index);
+    case DIV:
+      return compute(prog, index + 1, led_index, next_i) /
+             compute(prog, next_i, led_index, next_index);
+    case POW:
+      return pow(compute(prog, index + 1, led_index, next_i),
+                 compute(prog, next_i, led_index, next_index));
+    case MOD:
+      return compute(prog, index + 1, led_index, next_i) %
+             compute(prog, next_i, led_index, next_index);
+    case IF:
+      maybe = compute(prog, index + 1, led_index, next_i);
+      a = compute(prog, next_i, led_index, next_i);
+      b = compute(prog, next_i, led_index, next_index);
+      return maybe ? a : b;
+    case EQ:
+      a = compute(prog, index + 1, led_index, next_i);
+      b = compute(prog, next_i, led_index, next_index);
+      return a == b;
+    case GT:
+      a = compute(prog, index + 1, led_index, next_i);
+      b = compute(prog, next_i, led_index, next_index);
+      return a > b;
+    case LT:
+      a = compute(prog, index + 1, led_index, next_i);
+      b = compute(prog, next_i, led_index, next_index);
+      return a < b;
+    case AND:
+      a = compute(prog, index + 1, led_index, next_i);
+      b = compute(prog, next_i, led_index, next_index);
+      return a & b;
+    case OR:
+      a = compute(prog, index + 1, led_index, next_i);
+      b = compute(prog, next_i, led_index, next_index);
+      return a | b;
+    case VAL:
+      next_index = index + 2;
+      if (index + 1 >= PROGRAM_SIZE) {
+        return 0;
+      }
+      return prog[index + 1];
+    case VAR_T:
+      next_index = index + 1;
+      return t;
+    case VAR_I:
+      next_index = index + 1;
+      return led_index;
+    default:
+      break;
+  }
+}
